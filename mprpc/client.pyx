@@ -11,8 +11,6 @@ from gsocketpool.connection import Connection
 from mprpc.exceptions import RPCProtocolError, RPCError
 from mprpc.constants import MSGPACKRPC_REQUEST, MSGPACKRPC_RESPONSE, SOCKET_RECV_SIZE
 
-
-
 cdef class RPCClient:
     """RPC client.
 
