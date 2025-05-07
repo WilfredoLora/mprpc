@@ -1,3 +1,6 @@
 #!/bin/bash
+set -e
 
-cython mprpc/*.pyx
+echo "🔧 Compiling Cython files in mprpc/ to C (Python 3)..."
+cython --language-level=3 mprpc/*.pyx
+echo "✅ Done."
