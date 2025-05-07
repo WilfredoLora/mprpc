@@ -1,3 +1,9 @@
-include README.rst LICENSE requirements.txt
-include mprpc/*.c
-include mprpc/*.pyx
+include README.rst
+include LICENSE
+include requirements.txt
+
+# Include Cython sources & generated C files
+recursive-include mprpc *.pyx *.pxd *.c
+
+# Enable  if commiting to cython, it drops .c files.
+#recursive-include mprpc *.pyx *.pxd
