@@ -110,3 +110,9 @@ Documentation
 -------------
 
 Documentation is available at http://mprpc.readthedocs.org/.
+
+This fork of the mprpc library has been modernized for Python 3.x compatibility by Wilfredo Lora.
+
+Original copyright:
+    Copyright 2013 Studio Ousia (Apache License 2.0)
+
