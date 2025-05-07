@@ -1,16 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function
-
 import time
 import multiprocessing
-
-import sys
-
-if sys.version_info < (3,):
-    range = xrange
-else:
-    import builtins
-    range = builtins.range
 
 NUM_CALLS = 10000
 
@@ -35,7 +24,7 @@ def call():
     start = time.time()
     [client.call('sum', 1, 2) for _ in range(NUM_CALLS)]
 
-    print('call: %d qps' % (NUM_CALLS / (time.time() - start)))
+    print(f'call: {NUM_CALLS / (time.time() - start):.2f} qps')
 
 
 def call_using_connection_pool():
@@ -56,7 +45,7 @@ def call_using_connection_pool():
 
     [None for _ in glet_pool.imap_unordered(_call, range(NUM_CALLS))]
 
-    print('call_using_connection_pool: %d qps' % (NUM_CALLS / (time.time() - start)))
+    print(f'call_using_connection_pool: {NUM_CALLS / (time.time() - start):.2f} qps')
 
 
 if __name__ == '__main__':
