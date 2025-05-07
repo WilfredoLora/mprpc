@@ -18,10 +18,10 @@ setup(
     author_email='ikuya@ousia.jp',
     url='http://github.com/studio-ousia/mprpc',
     packages=['mprpc'],
-    ext_modules=[
+    ext_modules=cythonize([
         Extension('mprpc.client', ['mprpc/client.pyx']),
         Extension('mprpc.server', ['mprpc/server.pyx'])
-    ],
+    ]),
     license=license_text,
     include_package_data=True,
     keywords=['rpc', 'msgpack', 'messagepack', 'msgpackrpc', 'messagepackrpc',
