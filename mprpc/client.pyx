@@ -7,7 +7,7 @@ import time
 import logging
 from gevent import socket
 from gsocketpool.connection import Connection
-
+from mprpc.logger import logger
 from mprpc.exceptions import RPCProtocolError, RPCError
 from mprpc.constants import MSGPACKRPC_REQUEST, MSGPACKRPC_RESPONSE, SOCKET_RECV_SIZE
 
