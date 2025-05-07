@@ -1,11 +1,12 @@
+# cython: language_level=3
 # cython: profile=False
 # -*- coding: utf-8 -*-
 
 import gevent.socket
 import msgpack
 
-from constants import MSGPACKRPC_REQUEST, MSGPACKRPC_RESPONSE, SOCKET_RECV_SIZE
-from exceptions import MethodNotFoundError, RPCProtocolError
+from mprpc.constants import MSGPACKRPC_REQUEST, MSGPACKRPC_RESPONSE, SOCKET_RECV_SIZE
+from mprpc.exceptions import MethodNotFoundError, RPCProtocolError
 from gevent.local import local
 
 
@@ -14,13 +15,8 @@ cdef class RPCServer:
 
     This class is assumed to be used with gevent StreamServer.
 
-    :param str pack_encoding: (optional) Character encoding used to pack data
-        using Messagepack.
-    :param str unpack_encoding: (optional) Character encoding used to unpack
-        data using Messagepack
-    :param dict pack_params: (optional) Parameters to pass to Messagepack Packer
-    :param dict unpack_params: (optional) Parameters to pass to Messagepack
-        Unpacker
+    :param dict pack_params: (optional) Parameters to pass to MessagePack Packer.
+    :param dict unpack_params: (optional) Parameters to pass to MessagePack Unpacker.
 
     Usage:
         >>> from gevent.server import StreamServer
@@ -30,29 +26,24 @@ cdef class RPCServer:
         ...     def sum(self, x, y):
         ...         return x + y
         ...
-        >>>
         >>> server = StreamServer(('127.0.0.1', 6000), SumServer())
         >>> server.serve_forever()
     """
 
     cdef _packer
-    cdef _unpack_encoding
     cdef _unpack_params
     cdef _tcp_no_delay
     cdef _methods
     cdef _address
 
     def __init__(self, *args, **kwargs):
-        pack_encoding = kwargs.pop('pack_encoding', 'utf-8')
         pack_params = kwargs.pop('pack_params', dict(use_bin_type=True))
-
-        self._unpack_encoding = kwargs.pop('unpack_encoding', 'utf-8')
-        self._unpack_params = kwargs.pop('unpack_params', dict(use_list=False))
+        self._unpack_params = kwargs.pop('unpack_params', dict(raw=False, use_list=False))
 
         self._tcp_no_delay = kwargs.pop('tcp_no_delay', False)
         self._methods = {}
 
-        self._packer = msgpack.Packer(encoding=pack_encoding, **pack_params)
+        self._packer = msgpack.Packer(**pack_params)
 
         self._address = local()
         self._address.client_host = None
@@ -70,20 +61,22 @@ cdef class RPCServer:
 
         self._run(_RPCConnection(sock))
 
-    property client_host:
-        def __get__(self):
-            return self._address.client_host
+    @property
+    def client_host(self):
+        """Return the client host."""
+        return self._address.client_host
 
-    property client_port:
-        def __get__(self):
-            return self._address.client_port
+    @property
+    def client_port(self):
+        """Return the client port."""
+        return self._address.client_port
 
     def _run(self, _RPCConnection conn):
         cdef bytes data
         cdef int msg_id
 
-        unpacker = msgpack.Unpacker(encoding=self._unpack_encoding,
-                                    **self._unpack_params)
+        unpacker = msgpack.Unpacker(**self._unpack_params)
+
         while True:
             data = conn.recv(SOCKET_RECV_SIZE)
             if not data:
@@ -95,26 +88,22 @@ cdef class RPCServer:
             except StopIteration:
                 continue
 
-            if type(req) not in (tuple, list):
+            if not isinstance(req, (tuple, list)):
                 self._send_error("Invalid protocol", -1, conn)
-                # reset unpacker as it might have garbage data
-                unpacker = msgpack.Unpacker(encoding=self._unpack_encoding,
-                                            **self._unpack_params)
+                unpacker = msgpack.Unpacker(**self._unpack_params)
                 continue
 
             (msg_id, method, args) = self._parse_request(req)
 
             try:
                 ret = method(*args)
-
-            except Exception, e:
+            except Exception as e:
                 self._send_error(str(e), msg_id, conn)
-
             else:
                 self._send_result(ret, msg_id, conn)
 
     cdef tuple _parse_request(self, req):
-        if (len(req) != 4 or req[0] != MSGPACKRPC_REQUEST):
+        if len(req) != 4 or req[0] != MSGPACKRPC_REQUEST:
             raise RPCProtocolError('Invalid protocol')
 
         cdef int msg_id
@@ -125,14 +114,14 @@ cdef class RPCServer:
 
         if method is None:
             if method_name.startswith('_'):
-                raise MethodNotFoundError('Method not found: %s', method_name)
+                raise MethodNotFoundError(f'Method not found: {method_name}')
 
             if not hasattr(self, method_name):
-                raise MethodNotFoundError('Method not found: %s', method_name)
+                raise MethodNotFoundError(f'Method not found: {method_name}')
 
             method = getattr(self, method_name)
-            if not hasattr(method, '__call__'):
-                raise MethodNotFoundError('Method is not callable: %s', method_name)
+            if not callable(method):
+                raise MethodNotFoundError(f'Method is not callable: {method_name}')
 
             self._methods[method_name] = method
 
@@ -162,5 +151,5 @@ cdef class _RPCConnection:
     def __del__(self):
         try:
             self._socket.close()
-        except:
+        except Exception:
             pass
