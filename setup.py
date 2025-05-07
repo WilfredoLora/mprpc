@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, Extension
+from setuptools import setup
 from Cython.Build import cythonize
 
 with open("README.rst", encoding="utf-8") as f:
@@ -19,8 +19,8 @@ setup(
     url='http://github.com/studio-ousia/mprpc',
     packages=['mprpc'],
     ext_modules=cythonize([
-        Extension('mprpc.client', ['mprpc/client.pyx']),
-        Extension('mprpc.server', ['mprpc/server.pyx'])
+        'mprpc/client.pyx',
+        'mprpc/server.pyx'
     ]),
     license=license_text,
     include_package_data=True,
@@ -50,5 +50,5 @@ setup(
         'nose',
         'mock',
     ],
-    test_suite = 'nose.collector'
+    test_suite='nose.collector'
 )
