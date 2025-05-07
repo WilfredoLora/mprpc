@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
+"""
+Example RPC server that provides a sum(x, y) method using mprpc and gevent.
+"""
 
 from gevent.server import StreamServer
-
 from mprpc import RPCServer
 
 
