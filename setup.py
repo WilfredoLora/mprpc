@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, Extension
+from Cython.Build import cythonize
+
+with open("README.rst", encoding="utf-8") as f:
+    long_description = f.read()
+
+with open("LICENSE", encoding="utf-8") as f:
+    license_text = f.read()
 
 setup(
     name='mprpc',
-    version='0.1.17',
+    version='0.1.18',
     description='A fast MessagePack RPC library',
-    long_description=open('README.rst').read(),
+    long_description=long_description,
     author='Studio Ousia',
     author_email='ikuya@ousia.jp',
     url='http://github.com/studio-ousia/mprpc',
     packages=['mprpc'],
     ext_modules=[
-        Extension('mprpc.client', ['mprpc/client.c']),
-        Extension('mprpc.server', ['mprpc/server.c'])
+        Extension('mprpc.client', ['mprpc/client.pyx']),
+        Extension('mprpc.server', ['mprpc/server.pyx'])
     ],
-    license=open('LICENSE').read(),
+    license=license_text,
     include_package_data=True,
     keywords=['rpc', 'msgpack', 'messagepack', 'msgpackrpc', 'messagepackrpc',
               'messagepack rpc', 'gevent'],
@@ -25,16 +32,19 @@ setup(
         'Natural Language :: English',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
     install_requires=[
         'gsocketpool',
         'gevent',
-        'msgpack-python',
+        'msgpack',
     ],
     tests_require=[
         'nose',
