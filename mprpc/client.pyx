@@ -4,7 +4,6 @@
 
 import msgpack
 import time
-import mprpc
 from gevent import socket
 from gsocketpool.connection import Connection
 
