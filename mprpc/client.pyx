@@ -91,11 +91,11 @@ cdef class RPCClient:
         """Closes the connection."""
         assert self._socket is not None, 'Attempt to close an unopened socket'
 
-       logger.debug('Closing a msgpackrpc connection')
+        logger.debug('Closing a msgpackrpc connection')
         try:
             self._socket.close()
         except Exception:
-           logger.exception('An error has occurred while closing the socket')
+            logger.exception('An error has occurred while closing the socket')
 
         self._socket = None
 
