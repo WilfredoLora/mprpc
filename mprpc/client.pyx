@@ -74,7 +74,7 @@ cdef class RPCClient:
     def open(self):
         """Opens a connection."""
         assert self._socket is None, 'The connection has already been established'
-        mprpc.logger.debug('Opening a msgpackrpc connection')
+        #mprpc.logger.debug('Opening a msgpackrpc connection')
 
         if self._timeout:
             self._socket = socket.create_connection((self._host, self._port), self._timeout)
@@ -91,11 +91,11 @@ cdef class RPCClient:
         """Closes the connection."""
         assert self._socket is not None, 'Attempt to close an unopened socket'
 
-        mprpc.logger.debug('Closing a msgpackrpc connection')
+       # mprpc.logger.debug('Closing a msgpackrpc connection')
         try:
             self._socket.close()
         except Exception:
-            mprpc.logger.exception('An error has occurred while closing the socket')
+           # mprpc.logger.exception('An error has occurred while closing the socket')
 
         self._socket = None
 
@@ -129,7 +129,7 @@ cdef class RPCClient:
                 continue
 
         if not isinstance(response, (tuple, list)):
-            mprpc.logger.debug(f'Protocol error, received unexpected data: {data}')
+            #mprpc.logger.debug(f'Protocol error, received unexpected data: {data}')
             raise RPCProtocolError('Invalid protocol')
 
         return self._parse_response(response)
