@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import gevent
 from gevent import socket
 from gevent.server import StreamServer
 
-from nose.tools import *
-from mock import Mock, patch
+import unittest
+from unittest.mock import Mock, patch
 
 from mprpc.client import RPCClient
 from mprpc.server import RPCServer
@@ -15,7 +13,7 @@ HOST = 'localhost'
 PORT = 6000
 
 
-class TestRPC(object):
+class TestRPC(unittest.TestCase):
     def setUp(self):
         class TestServer(RPCServer):
             def echo(self, msg):
@@ -41,14 +39,14 @@ class TestRPC(object):
 
         client = RPCClient(HOST, PORT)
 
-        ok_(client.is_connected())
+        self.assertTrue(client.is_connected())
 
         mock_socket.create_connection.assert_called_once_with((HOST, PORT))
 
         client.close()
 
-        ok_(mock_socket_ins.close.called)
-        ok_(not client.is_connected())
+        self.assertTrue(mock_socket_ins.close.called)
+        self.assertFalse(client.is_connected())
 
     @patch('mprpc.client.socket')
     def test_open_with_timeout(self, mock_socket):
@@ -58,31 +56,30 @@ class TestRPC(object):
         client = RPCClient(HOST, PORT, timeout=5.0)
 
         mock_socket.create_connection.assert_called_once_with((HOST, PORT), 5.0)
-        ok_(client.is_connected())
+        self.assertTrue(client.is_connected())
 
     def test_call(self):
         client = RPCClient(HOST, PORT)
 
         ret = client.call('echo', 'message')
-        eq_('message', ret)
+        self.assertEqual('message', ret)
 
         ret = client.call('echo', 'message' * 100)
-        eq_('message' * 100, ret)
+        self.assertEqual('message' * 100, ret)
 
-    @raises(RPCError)
     def test_call_server_side_exception(self):
         client = RPCClient(HOST, PORT)
 
-        try:
-            ret = client.call('raise_error')
-        except RPCError as e:
-            eq_('error msg', str(e))
-            raise
+        with self.assertRaises(RPCError) as cm:
+            client.call('raise_error')
+        self.assertEqual('error msg', str(cm.exception))
 
-        eq_('message', ret)
-
-    @raises(socket.timeout)
     def test_call_socket_timeout(self):
         client = RPCClient(HOST, PORT, timeout=0.1)
 
-        client.call('echo_delayed', 'message', 1)
+        with self.assertRaises(socket.timeout):
+            client.call('echo_delayed', 'message', 1)
+
+
+if __name__ == '__main__':
+    unittest.main()
