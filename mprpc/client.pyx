@@ -4,13 +4,13 @@
 
 import msgpack
 import time
+import mprpc
 from gevent import socket
 from gsocketpool.connection import Connection
 
 from mprpc.exceptions import RPCProtocolError, RPCError
 from mprpc.constants import MSGPACKRPC_REQUEST, MSGPACKRPC_RESPONSE, SOCKET_RECV_SIZE
 
-from mprpc import logger
 
 
 cdef class RPCClient:
@@ -74,7 +74,7 @@ cdef class RPCClient:
     def open(self):
         """Opens a connection."""
         assert self._socket is None, 'The connection has already been established'
-        logger.debug('Opening a msgpackrpc connection')
+        mprpc.logger.debug('Opening a msgpackrpc connection')
 
         if self._timeout:
             self._socket = socket.create_connection((self._host, self._port), self._timeout)
@@ -91,11 +91,11 @@ cdef class RPCClient:
         """Closes the connection."""
         assert self._socket is not None, 'Attempt to close an unopened socket'
 
-        logger.debug('Closing a msgpackrpc connection')
+        mprpc.logger.debug('Closing a msgpackrpc connection')
         try:
             self._socket.close()
         except Exception:
-            logger.exception('An error has occurred while closing the socket')
+            mprpc.logger.exception('An error has occurred while closing the socket')
 
         self._socket = None
 
@@ -129,7 +129,7 @@ cdef class RPCClient:
                 continue
 
         if not isinstance(response, (tuple, list)):
-            logger.debug(f'Protocol error, received unexpected data: {data}')
+            mprpc.logger.debug(f'Protocol error, received unexpected data: {data}')
             raise RPCProtocolError('Invalid protocol')
 
         return self._parse_response(response)
