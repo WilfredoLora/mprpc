@@ -1,11 +1,34 @@
+# Python bytecode + cache
 *.pyc
+__pycache__/
+
+# Compiled Cython files
 *.so
+*.c  # Optional: if you don't commit C files
+
+# Distribution/build artifacts
 *.egg-info
 *.egg
+build/
+dist/
+
+# Coverage/test artifacts
 .coverage
-.ropeproject
+.pytest_cache/
+
+# Virtual environments
 .venv*
+venv/
+ENV/
+env/
+
+# Editor/IDE
+.ropeproject
 *.sublime-*
-build
-dist
+
+# Docs
 docs/_build
+
+# OS files
+.DS_Store
+Thumbs.db
